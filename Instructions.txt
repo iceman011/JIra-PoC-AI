@@ -63,4 +63,4 @@ Bash
 *   **Exit Code 137:** This means the process was killed because the Codespace ran out of memory. Upgrade your machine type to 8GB or 16GB RAM.
 *   **Infinite Loading:** If the browser hangs, check if the `db` container is fully ready before Jira tries to connect. You may need to restart the `jira` container once the database is initialized.
 
-**Would you like me to provide a `.devcontainer/devcontainer.json` configuration
+**Would you like me to provide a `.devcontainer/devcontainer.json` configurations
