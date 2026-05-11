@@ -1,0 +1,7 @@
+# Ignore Jira internal data volumes
+jira_data/
+postgres_data/
+*.log
+*.tmp
+# Ignore large model files if not using LFS
+public/models/*.onnx

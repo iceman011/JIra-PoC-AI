@@ -1,0 +1,66 @@
+Running Jira locally in GitHub Codespaces is possible using Docker Compose. Since Jira is a Java-based application with significant memory requirements, you must ensure your Codespace is sized correctly (at least 4 cores and 8GB RAM).  
+
+1. Prerequisites
+Codespace Machine Type: Use a machine with at least 8GB RAM (the "4-core" option). Jira often crashes on the default 2-core/4GB machine.  
+
+Atlassian License: You will need a Jira Data Center evaluation license (available at my.atlassian.com) to finish the setup.
+
+2. Configuration Files
+Create a docker-compose.yml file in your root directory. Using an external database like PostgreSQL is recommended over the internal H2 database for stability.
+
+YAML
+version: '3.8'
+services:
+  jira:
+    image: atlassian/jira-software:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - ATL_JDBC_URL=jdbc:postgresql://db:5432/jiradb
+      - ATL_JDBC_USER=jira
+      - ATL_JDBC_PASSWORD=jpassword
+      - ATL_DB_DRIVER=org.postgresql.Driver
+      - ATL_DB_TYPE=postgres72
+    volumes:
+      - jira_data:/var/atlassian/application-data/jira
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=jira
+      - POSTGRES_PASSWORD=jpassword
+      - POSTGRES_DB=jiradb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  jira_data:
+  postgres_data:
+3. Running Jira
+Start the containers:
+Open the terminal in Codespaces and run:
+
+Bash
+docker-compose up -d
+Wait for initialization:
+Jira can take 2–5 minutes to start. You can follow the logs with:
+
+Bash
+    docker-compose logs -f jira
+    ```
+3.  **Open the port:**
+    A notification should appear in the bottom-right corner saying "Your application running on port 8080 is available." Click **Open in Browser**. 
+
+---
+
+### 4. Important Codespaces Adjustments
+*   **Port Visibility:** In the **Ports** tab of your terminal, right-click port 8080 and ensure "Port Visibility" is set to **Public** if you need to connect external webhooks, otherwise keep it **Private**.
+*   **Base URL:** During the Jira setup wizard, Jira will ask for its "Base URL." Ensure this matches the **Codespaces generated URL** (e.g., `[https://your-codespace-name-8080.app.github.dev](https://your-codespace-name-8080.app.github.dev)`).
+
+### Common Troubleshooting
+*   **Exit Code 137:** This means the process was killed because the Codespace ran out of memory. Upgrade your machine type to 8GB or 16GB RAM.
+*   **Infinite Loading:** If the browser hangs, check if the `db` container is fully ready before Jira tries to connect. You may need to restart the `jira` container once the database is initialized.
+
+**Would you like me to provide a `.devcontainer/devcontainer.json` configuration
